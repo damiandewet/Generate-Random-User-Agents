@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Agent Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            background-color: #fff;
+            padding: 30px;
+            margin: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .option {
+            margin: 20px 0;
+        }
+        .option label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        .option input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .option button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4285F4;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .option button:hover {
+            background-color: #3367D6;
+        }
+        #output {
+            margin-top: 30px;
+            white-space: pre-wrap;
+            background-color: #e8f0fe;
+            padding: 20px;
+            border-radius: 8px;
+            overflow: auto;
+            max-height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+        }
+        .save-btn {
+            margin-top: 15px;
+            background-color: #34A853;
+        }
+        .save-btn:hover {
+            background-color: #2C8E42;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Agent Generator</h1>
+        <div class="option">
+            <label for="singleBtn">Generate a single user agent:</label>
+            <button id="singleBtn">Generate One</button>
+        </div>
+        <div class="option">
+            <label for="multipleInput">Generate multiple user agents:</label>
+            <input type="number" id="multipleInput" placeholder="Enter the number">
+            <button id="multipleBtn">Generate Multiple</button>
+        </div>
+        <div id="output"></div>
+        <button id="saveBtn" class="save-btn" style="display:none;">Save to File</button>
+    </div>
+    <div class="footer">
+        &copy; 2024 User Agent Generator
+    </div>
+
+    <script>
+        // Data structures similar to the ones used in the Python script
+        const osBrowserMap = {
+            "Windows": {
+                "osList": [
+                    "Windows NT 11.0; Win64; x64",  // Windows 11
+                    "Windows NT 10.0; Win64; x64",
+                    "Windows NT 10.0; WOW64",
+                    "Windows NT 6.3; Win64; x64",   // Windows 8.1
+                    "Windows NT 6.1; Win64; x64",   // Windows 7
+                    "Windows NT 6.0; Win32",        // Windows Vista
+                    "Windows NT 5.1; Win32"         // Windows XP
+                ],
+                "browsers": {
+                    "Chrome/105.0.5195.102": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Firefox/105.0": "Gecko/20100101",
+                    "Edg/105.0.1343.27": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "OPR/90.0.4480.84": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Vivaldi/5.4.2753.40": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Brave/1.43.89": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Maxthon/6.1.3.3000": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "YaBrowser/22.9.3.779": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "MSIE 11.0": "Trident/7.0"
+                }
+            },
+            "macOS": {
+                "osList": [
+                    "Macintosh; Intel Mac OS X 13_0",     // macOS Ventura
+                    "Macintosh; Intel Mac OS X 12_6",     // macOS Monterey
+                    "Macintosh; Intel Mac OS X 11_6_7",   // macOS Big Sur
+                    "Macintosh; Intel Mac OS X 10_15_7",  // macOS Catalina
+                    "Macintosh; Intel Mac OS X 10_14_6"   // macOS Mojave
+                ],
+                "browsers": {
+                    "Safari/605.1.15": "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                    "Chrome/105.0.5195.102": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Firefox/105.0": "Gecko/20100101",
+                    "OPR/90.0.4480.84": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Vivaldi/5.4.2753.40": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Brave/1.43.89": "AppleWebKit/537.36 (KHTML, like Gecko)"
+                }
+            },
+            "Linux": {
+                "osList": [
+                    "X11; Ubuntu; Linux x86_64",
+                    "X11; Fedora; Linux x86_64",
+                    "X11; Debian; Linux x86_64",
+                    "X11; Arch Linux; Linux x86_64",
+                    "X11; CentOS; Linux x86_64",
+                    "X11; Red Hat Enterprise Linux; Linux x86_64"
+                ],
+                "browsers": {
+                    "Chrome/105.0.5195.102": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Firefox/105.0": "Gecko/20100101",
+                    "OPR/90.0.4480.84": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Vivaldi/5.4.2753.40": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Brave/1.43.89": "AppleWebKit/537.36 (KHTML, like Gecko)"
+                }
+            },
+            "Android": {
+                "osList": [
+                    "Linux; Android 13; SM-G998U Build/TP1A.220624.014",
+                    "Linux; Android 12; Pixel 6 Build/SD2A.210817.036",
+                    "Linux; Android 11; ONEPLUS A6013 Build/QKQ1.190716.003",
+                    "Linux; Android 10; HUAWEI ELE-L29 Build/HUAWEIELE-L29",
+                    "Android 9; Mobile"
+                ],
+                "browsers": {
+                    "Chrome/105.0.5195.79 Mobile": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "SamsungBrowser/18.0": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "UCBrowser/14.2.0.1162": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "OPR/64.2.3282.61404": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "DuckDuckGo/7.65.3": "AppleWebKit/537.36 (KHTML, like Gecko)"
+                }
+            },
+            "iOS": {
+                "osList": [
+                    "iPhone; CPU iPhone OS 16_0 like Mac OS X",
+                    "iPad; CPU OS 15_6 like Mac OS X",
+                    "iPod touch; CPU iPhone OS 14_8 like Mac OS X"
+                ],
+                "browsers": {
+                    "Mobile Safari/605.1.15": "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                    "FxiOS/105.0 Mobile": "AppleWebKit/605.1.15 (KHTML, like Gecko)",
+                    "DuckDuckGo/7.65.3": "AppleWebKit/605.1.15 (KHTML, like Gecko)"
+                }
+            },
+            "Others": {
+                "osList": [
+                    "CrOS x86_64 15183.78.0",  // Chrome OS
+                    "BB10; Touch",             // BlackBerry
+                    "Linux; U; en-us; KFAUWI Build/KTU84M"  // Kindle Fire
+                ],
+                "browsers": {
+                    "Chrome/105.0.5195.102": "AppleWebKit/537.36 (KHTML, like Gecko)",
+                    "Firefox/105.0": "Gecko/20100101",
+                    "Safari/534.57.2": "AppleWebKit/534.57.2 (KHTML, like Gecko)",
+                    "Silk/3.50": "AppleWebKit/537.36 (KHTML, like Gecko)"
+                }
+            }
+        };
+
+        const localizationOptions = [
+            'en-US', 'en-GB', 'en-CA', 'en-AU', 'en-IN',
+            'fr-FR', 'fr-CA', 'fr-BE', 'de-DE', 'de-AT',
+            'es-ES', 'es-MX', 'es-AR', 'pt-BR', 'pt-PT',
+            'ru-RU', 'ko-KR', 'it-IT', 'nl-NL', 'sv-SE',
+            'zh-CN', 'zh-TW', 'ja-JP'
+        ];
+
+        function generateSingleUserAgent() {
+            const osCategories = Object.keys(osBrowserMap);
+            const osCategory = osCategories[Math.floor(Math.random() * osCategories.length)];
+            const osInfo = osBrowserMap[osCategory];
+
+            const osPart = osInfo.osList[Math.floor(Math.random() * osInfo.osList.length)];
+            const browsers = Object.keys(osInfo.browsers);
+            const browserPart = browsers[Math.floor(Math.random() * browsers.length)];
+            const renderEngine = osInfo.browsers[browserPart];
+            const locale = localizationOptions[Math.floor(Math.random() * localizationOptions.length)];
+
+            const userAgent = `Mozilla/5.0 (${osPart}; ${locale}) ${renderEngine} ${browserPart}`;
+            return userAgent;
+        }
+
+        function generateMultipleUserAgents(n) {
+            const userAgents = [];
+            for (let i = 0; i < n; i++) {
+                userAgents.push(generateSingleUserAgent());
+            }
+            return userAgents;
+        }
+
+        // Event listeners for buttons
+        document.getElementById('singleBtn').addEventListener('click', () => {
+            const ua = generateSingleUserAgent();
+            displayOutput([ua]);
+        });
+
+        document.getElementById('multipleBtn').addEventListener('click', () => {
+            const numInput = document.getElementById('multipleInput').value;
+            const num = parseInt(numInput);
+            if (isNaN(num) || num <= 0) {
+                alert('Please enter a positive integer.');
+                return;
+            }
+            const userAgents = generateMultipleUserAgents(num);
+            displayOutput(userAgents);
+        });
+
+        function displayOutput(userAgents) {
+            const outputDiv = document.getElementById('output');
+            outputDiv.textContent = userAgents.join('\n\n');
+            if (userAgents.length > 0) {
+                document.getElementById('saveBtn').style.display = 'block';
+                // Store user agents for saving
+                document.getElementById('saveBtn').userAgents = userAgents;
+            } else {
+                document.getElementById('saveBtn').style.display = 'none';
+            }
+        }
+
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const userAgents = document.getElementById('saveBtn').userAgents;
+            const blob = new Blob([userAgents.join('\n')], {type: 'text/plain;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'user_agents.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
